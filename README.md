@@ -59,24 +59,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This function searches the listings file and returns matches based on a description, size, and maximum price.
+- **Inputs:** description (str), size (str), max_price (float)<!-- name and type each: `max_price` (float), not "a price" -->
+- **Returns:** list[dict] - A list of listing dictionaries each with a title, price, style tags, and category.
+- **When it has nothing:** Empty list
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This function takes an item and a wardrobe, and returns outfit ideas.
+- **Inputs:** new_item (dict), wardrobe (list[dict])
+- **Returns:** list[dict] - A list of item dictionaries each with a name, category, and style tags of items that work together to build an outfit.
+- **When it has nothing:** Error string "Unable to suggest an outfit"
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This function writes a short caption someone would actually post about the item for a listing.
+- **Inputs:** outfit (list[dict]), new_item (dict)
+- **Returns:** str - A string that provides a description of how a new clothing item can be incorporated into an outfit from a person's existing wardrobe.
+- **When it has nothing:** Error string "Unable to create a fit card"
 
 ---
 
