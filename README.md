@@ -67,16 +67,16 @@
 ### `suggest_outfit`
 
 - **What it does:** This function takes an item and a wardrobe, and returns outfit ideas.
-- **Inputs:** new_item (dict), wardrobe (list[dict])
-- **Returns:** list[dict] - A list of item dictionaries each with a name, category, and style tags of items that work together to build an outfit.
-- **When it has nothing:** Error string "Unable to suggest an outfit"
+- **Inputs:** new_item (dict listing), wardrobe (dict with an `items` list of wardrobe item dicts)
+- **Returns:** str - Outfit suggestions as text, naming matching wardrobe pieces when available.
+- **When it has nothing:** If the wardrobe is empty, general styling advice for the new item.
 
 ### `create_fit_card`
 
 - **What it does:** This function writes a short caption someone would actually post about the item for a listing.
-- **Inputs:** outfit (list[dict]), new_item (dict)
+- **Inputs:** outfit (str), new_item (dict listing)
 - **Returns:** str - A string that provides a description of how a new clothing item can be incorporated into an outfit from a person's existing wardrobe.
-- **When it has nothing:** Error string "Unable to create a fit card"
+- **When it has nothing:** A descriptive message if the outfit suggestion is empty.
 
 ---
 
@@ -122,16 +122,33 @@ $ python app.py ask '...'
 ```
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
 
+[{'id': 'lst_002', 'title': 'Y2K Baby Tee — Butterfly Print', 'description': 'Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.', 'category': 'tops', 'style_tags': ['y2k', 'vintage', 'graphic tee', 'cottagecore'], 'size': 'S/M', 'condition': 'excellent', 'price': 18.0, 'colors': ['white', 'pink', 'purple'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_006', 'title': 'Graphic Tee — 2003 Tour Bootleg Style', 'description': 'Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.', 'category': 'tops', 'style_tags': ['graphic tee', 'vintage', 'grunge', 'streetwear', 'band tee'], 'size': 'L', 'condition': 'good', 'price': 24.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_017', 'title': 'Mesh Long-Sleeve Top — Black', 'description': 'Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.', 'category': 'tops', 'style_tags': ['y2k', 'grunge', 'goth', 'layering'], 'size': 'S/M', 'condition': 'excellent', 'price': 15.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_033', 'title': 'Vintage Band Tee — Faded Grey', 'description': 'Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'band tee', 'graphic tee', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 19.0, 'colors': ['grey', 'charcoal'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_011', 'title': 'Low-Rise Cargo Pants — Khaki', 'description': 'Y2K era low-rise cargo pants. Lots of pockets. Khaki color, slightly distressed at the hems. Great for layering with a long tee.', 'category': 'bottoms', 'style_tags': ['y2k', 'cargo', '2000s', 'streetwear'], 'size': 'W29', 'condition': 'fair', 'price': 27.0, 'colors': ['khaki', 'tan'], 'brand': None, 'platform': 'poshmark'}, {'id': 'lst_015', 'title': 'Vintage Graphic Hoodie — Faded Black', 'description': 'Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'graphic', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 26.0, 'colors': ['black', 'charcoal'], 'brand': None, 'platform': 'depop'}]
 ```
 
 ```
-$ python -c "from tools import suggest_outfit; ..."
+$ python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
 
+Outfit 1: Casual Streetwear
+- Vintage Levi's 501 Jeans — Medium Wash
+- White ribbed tank top
+- Oversized grey crewneck sweatshirt
+- Chunky white sneakers
+- Black crossbody bag
+Wear the tank tucked into the 501s with the grey crewneck layered on top. Finish with the white sneakers and black crossbody bag for an easy, everyday look.
+
+Outfit 2: Edge & Denim
+- Vintage Levi's 501 Jeans — Medium Wash
+- White ribbed tank top
+- Vintage black denim jacket
+- Black combat boots
+- Brown leather belt
+Tuck the white tank into the 501s, secure them with the brown leather belt, and layer the black denim jacket on top. Complete the outfit with the black combat boots to lean into the vintage grunge aesthetic.
 ```
 
 ```
-$ python -c "from tools import create_fit_card; ..."
+$ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
 
+Nothing beats a pair of broken-in blues with that effortless streetwear edge. Just style these with your favorite white sneakers for an easy, timeless look. Grab the Vintage Levi's 501 Jeans — Medium Wash for $38.00 over on depop before they're gone!
 ```
 
 ---
