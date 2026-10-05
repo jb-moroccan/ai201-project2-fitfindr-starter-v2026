@@ -93,13 +93,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule:** If search_listings returns an empty list, put a message in the session and stop. Otherwise take the first result and go to suggest_outfit. If suggest_outfit returns an error string, put a message in the session and stop. Otherwise take the list result and go to create_fit_card.
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which --> Use regular expressions to extract the size (such as `M`) and maximum price (such as `$30`); use the remaining query text as the description.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** <!-- which fields, in what order --> Store the parsed description, size, and maximum price in `session["parsed"]`, then store the search results in `session["search_results"]`. For a match, put the first result in `session["selected_item"]`; pass that item and `session["wardrobe"]` to `suggest_outfit`, store its result in `session["outfit_suggestion"]`, then pass the outfit suggestion and selected item to `create_fit_card` and store the caption in `session["fit_card"]`. If there are no matches, store an explanatory message in `session["error"]` and stop.
 
 ---
 
