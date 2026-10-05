@@ -41,7 +41,7 @@
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
 
-
+FitFindr takes a clothing search query, such as an item description with a size and price limit, and looks for matching thrift listings. When it finds a match, it suggests outfit ideas using the user's wardrobe, or general styling ideas if the wardrobe is empty. It then creates a short caption for the selected item and outfit; if nothing matches, it explains what the user could change.
 
 ---
 
@@ -93,13 +93,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:** If search_listings returns an empty list, put a message in the session and stop. Otherwise take the first result and go to suggest_outfit. If suggest_outfit returns an error string, put a message in the session and stop. Otherwise take the list result and go to create_fit_card.
+**Branch rule:** If `search_listings` returns an empty list, store a message in `session["error"]` explaining that the user can change the description, size, or maximum price, then stop. Otherwise, store the first result in `session["selected_item"]` and call `suggest_outfit`. If that call returns a blank value, a non-string, `"Unable to suggest an outfit"`, or a string beginning with `"error:"`, store an error message and stop. Otherwise, pass the outfit suggestion string and selected item to `create_fit_card` and store its caption in the session.
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which --> Use regular expressions to extract the size (such as `M`) and maximum price (such as `$30`); use the remaining query text as the description.
+**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which --> Regular expressions extract an optional size following `size` and an optional maximum price following terms such as `under`, `below`, `up to`, `at most`, or `max`, or a standalone dollar amount. The parser removes those matched parts and common filler words from the query to form the description; missing size or price values are stored as `None`.
 
-**What moves through the session:** <!-- which fields, in what order --> Store the parsed description, size, and maximum price in `session["parsed"]`, then store the search results in `session["search_results"]`. For a match, put the first result in `session["selected_item"]`; pass that item and `session["wardrobe"]` to `suggest_outfit`, store its result in `session["outfit_suggestion"]`, then pass the outfit suggestion and selected item to `create_fit_card` and store the caption in `session["fit_card"]`. If there are no matches, store an explanatory message in `session["error"]` and stop.
+**What moves through the session:** <!-- which fields, in what order --> Store the parsed description, size, and maximum price in `session["parsed"]`, then store the search results in `session["search_results"]`. If results exist, store the first listing in `session["selected_item"]`; `suggest_outfit` receives that item and `session["wardrobe"]`, and its text result is stored in `session["outfit_suggestion"]`. The agent reads the suggestion back from the session and passes it with `session["selected_item"]` to `create_fit_card`, storing the returned caption in `session["fit_card"]`. If search is empty or the outfit result signals an error, the agent stores a message in `session["error"]` and stops before the next tool.
 
 ---
 
@@ -183,15 +183,28 @@ Nothing beats a pair of broken-in blues with that effortless streetwear edge. Ju
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I used Claude to help me build the search_listings function by giving it the spec to base it off what I wrote for the tool inventory in the README along with making sure to use the data loader to read in the file.
+- *What came back:* It returned a function that had a return value of str.
+- *What I changed:* I updated my README to reflect this str return value because I wanted the method signatures to match the initial stubs provided and my README did not while Claude properly followed the right return types.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked Claude if it could help me understand how to temporarily change the cache to not be enabled so I could verify if my fit card function would return 3 different answers on 3 different runs.
+- *What came back:* It suggested: In PowerShell, disable the cache for the current terminal session, then run all three calls with the same input:
+
+```powershell
+$env:AI201_CACHE = "0"
+python -c "from tools import create_fit_card; from utils.data_loader import load_listings; item=load_listings()[0]; [print(f'Run {i}: {create_fit_card(\"jeans and white sneakers\", item)}') for i in range(1, 4)]"
+```
+
+This makes each call reach the model instead of reusing the cached answer. `TEMPERATURE` is already `0.9`, which encourages variation, but the model can still occasionally produce identical wording.
+
+To restore the default cache setting in that terminal:
+
+```powershell
+Remove-Item Env:AI201_CACHE
+```
+- *What I changed:* I ended up simply changing the CACHE_ENABLED value to be 0 because I felt like this was a lot of extra work to test something that took less than a minute that I wanted to reset back to the previous value afterwards.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
