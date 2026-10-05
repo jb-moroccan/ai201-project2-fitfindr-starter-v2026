@@ -14,6 +14,7 @@ Build and test your three tools in `tools.py` first. Then come here.
 """
 
 import config
+import re
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
 from generate import ModelUnavailable
@@ -64,7 +65,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         the run ended early and the later fields will still be None.
 
     ─────────────────────────────────────────────────────────────────────────
-    TODO — build this, following the branch rule you wrote in Milestone 2.
+    Implementation — follow the branch rule written in Milestone 2.
 
       1. Start a session with new_session().
 
@@ -107,8 +108,81 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     """
     session = new_session(query, wardrobe)
 
-    # TODO: delete these two lines and build the loop.
-    session["error"] = "The planning loop isn't built yet — see the TODO in agent.py."
+    size_pattern = re.compile(
+        r"\bsize\s*(?:is\s*)?(?P<size>one\s+size|xxxl|xxl|xxs|xs|xl|"
+        r"(?:xxs|xs|s|m|l|xl|xxl|xxxl)(?:\s*/\s*(?:xxs|xs|s|m|l|xl|xxl|xxxl))?|"
+        r"\d{1,2}(?:\.\d+)?(?:\s*/\s*\d{1,2}(?:\.\d+)?)?)\b",
+        re.IGNORECASE,
+    )
+    price_pattern = re.compile(
+        r"\b(?:under|below|up\s+to|at\s+most|max(?:imum)?(?:\s+price)?)"
+        r"\s*\$?\s*(?P<amount>\d+(?:\.\d{1,2})?)"
+        r"|\$\s*(?P<dollar_amount>\d+(?:\.\d{1,2})?)",
+        re.IGNORECASE,
+    )
+
+    size_match = size_pattern.search(query)
+    price_match = price_pattern.search(query)
+    size = size_match.group("size") if size_match else None
+    if size:
+        size = re.sub(r"\s*/\s*", "/", size).strip()
+    price_text = (
+        (price_match.group("amount") or price_match.group("dollar_amount"))
+        if price_match
+        else None
+    )
+    max_price = float(price_text) if price_text else None
+
+    description = query
+    if size_match:
+        description = description.replace(size_match.group(0), " ", 1)
+    if price_match:
+        description = description.replace(price_match.group(0), " ", 1)
+    description = re.sub(
+        r"\b(?:looking\s+for|find\s+me|show\s+me|i\s+want|a|an|the|in)\b",
+        " ",
+        description,
+        flags=re.IGNORECASE,
+    )
+    description = re.sub(r"\s+", " ", description).strip(" ,.!?\t\n")
+    session["parsed"] = {
+        "description": description,
+        "size": size,
+        "max_price": max_price,
+    }
+
+    trace.check_iterations(1)  # type: ignore[attr-defined]
+    session["search_results"] = search_listings(**session["parsed"])
+    if not session["search_results"]:
+        session["error"] = (
+            "No listings matched. Try changing the item description, size, "
+            "or maximum price."
+        )
+        return session
+
+    session["selected_item"] = session["search_results"][0]
+
+    trace.check_iterations(2)  # type: ignore[attr-defined]
+    session["outfit_suggestion"] = suggest_outfit(
+        session["selected_item"], session["wardrobe"]
+    )
+    outfit_suggestion = session["outfit_suggestion"]
+    if (
+        not isinstance(outfit_suggestion, str)
+        or not outfit_suggestion.strip()
+        or outfit_suggestion.strip().casefold() == "unable to suggest an outfit"
+        or outfit_suggestion.strip().casefold().startswith("error:")
+    ):
+        session["error"] = (
+            "A listing was found, but an outfit suggestion could not be created. "
+            "Try again or choose a different item."
+        )
+        return session
+
+    trace.check_iterations(3)  # type: ignore[attr-defined]
+    session["fit_card"] = create_fit_card(
+        session["outfit_suggestion"], session["selected_item"]
+    )
     return session
 
 
