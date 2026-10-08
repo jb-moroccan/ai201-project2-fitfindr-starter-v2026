@@ -60,8 +60,8 @@ FitFindr takes a clothing search query, such as an item description with a size 
 ### `search_listings`
 
 - **What it does:** This function searches the listings file and returns matches based on a description, size, and maximum price.
-- **Inputs:** description (str), size (str), max_price (float)<!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:** list[dict] - A list of listing dictionaries each with a title, price, style tags, and category.
+- **Inputs:** description (str), size (str | None, optional), max_price (float | None, optional, dollars)<!-- name and type each: `max_price` (float), not "a price" -->
+- **Returns:** list[dict] - Matching listing dictionaries with fields including `title`, `price`, `size`, `category`, `style_tags`, and `platform`, ordered by keyword match.
 - **When it has nothing:** Empty list
 
 ### `suggest_outfit`

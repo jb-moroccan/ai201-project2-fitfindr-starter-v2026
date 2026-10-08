@@ -16,7 +16,7 @@ Build and test your three tools in `tools.py` first. Then come here.
 import config
 import re
 import trace
-from tools import search_listings, suggest_outfit, create_fit_card
+from tools import suggest_outfit, create_fit_card
 from generate import ModelUnavailable
 
 
@@ -152,7 +152,14 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     }
 
     trace.check_iterations(1)  # type: ignore[attr-defined]
-    session["search_results"] = search_listings(**session["parsed"])
+
+    # Previous: session["search_results"] = search_listings(**session["parsed"])
+
+    from mcp_client import call_tool
+
+    session["search_results"] = call_tool(
+        "search_listings", session["parsed"]
+    )
     if not session["search_results"]:
         session["error"] = (
             "No listings matched. Try changing the item description, size, "
