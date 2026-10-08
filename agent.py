@@ -19,6 +19,8 @@ import trace
 from tools import suggest_outfit, create_fit_card
 from generate import ModelUnavailable
 
+trace_step = getattr(trace, "step")
+
 
 # ── session state ─────────────────────────────────────────────────────────────
 
@@ -150,6 +152,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         "size": size,
         "max_price": max_price,
     }
+    trace_step("parse_query", inputs=query, returned=str(session["parsed"]))
 
     trace.check_iterations(1)  # type: ignore[attr-defined]
 
@@ -160,18 +163,38 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     session["search_results"] = call_tool(
         "search_listings", session["parsed"]
     )
+    trace_step(
+        "search_listings (via MCP)",
+        inputs=str(session["parsed"]),
+        returned=session["search_results"],
+        note=f"{len(session['search_results'] or [])} match(es)",
+    )
     if not session["search_results"]:
         session["error"] = (
             "No listings matched. Try changing the item description, size, "
             "or maximum price."
         )
+        trace_step(
+            "branch",
+            returned=session["error"],
+            note="search returned []: stopping before suggest_outfit",
+        )
         return session
 
     session["selected_item"] = session["search_results"][0]
+    trace_step("select_item", returned=session["selected_item"])
 
     trace.check_iterations(2)  # type: ignore[attr-defined]
     session["outfit_suggestion"] = suggest_outfit(
         session["selected_item"], session["wardrobe"]
+    )
+    trace_step(
+        "suggest_outfit",
+        inputs={
+            "new_item": session["selected_item"],
+            "wardrobe": session["wardrobe"],
+        },
+        returned=session["outfit_suggestion"],
     )
     outfit_suggestion = session["outfit_suggestion"]
     if (
@@ -184,11 +207,24 @@ def run_agent(query: str, wardrobe: dict) -> dict:
             "A listing was found, but an outfit suggestion could not be created. "
             "Try again or choose a different item."
         )
+        trace_step(
+            "branch",
+            returned=session["error"],
+            note="outfit suggestion was empty or an error: stopping before create_fit_card",
+        )
         return session
 
     trace.check_iterations(3)  # type: ignore[attr-defined]
     session["fit_card"] = create_fit_card(
         session["outfit_suggestion"], session["selected_item"]
+    )
+    trace_step(
+        "create_fit_card",
+        inputs={
+            "outfit": session["outfit_suggestion"],
+            "new_item": session["selected_item"],
+        },
+        returned=session["fit_card"],
     )
     return session
 

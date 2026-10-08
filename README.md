@@ -288,13 +288,55 @@ that produced it:
 **Happy path**
 
 ```
+python app.py ask 'emerald velvet blazer under $100' --trace'
 
+[1] parse_query
+      in:  emerald velvet blazer under $100
+      out: {'description': 'emerald velvet blazer', 'size': None, 'max_price': 100.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'emerald velvet blazer', 'size': None, 'max_price': 100.0}
+      out: 2 items: Velvet Blazer — Emerald Green, Vintage Linen Blazer — Cream
+      →    2 match(es)
+[3] select_item
+      out: Velvet Blazer — Emerald Green ($52.0, depop)
+[4] suggest_outfit
+      in:  dict with keys: new_item, wardrobe
+      out: Outfit 1: High-Low Streetwear Layer the Emerald Green Velvet Blazer over the White ribbed tank top and pair wi…
+[5] create_fit_card
+      in:  dict with keys: outfit, new_item
+      out: There is nothing quite like a rich emerald moment for throwing over a simple white tank and baggy jeans. This …
+
+  Found:    Velvet Blazer — Emerald Green — $52.0 on depop
+
+  Outfit:   Outfit 1: High-Low Streetwear
+Layer the Emerald Green Velvet Blazer over the White ribbed tank top and pair with the Baggy straight-leg jeans, dark wash. Finish the look with the Chunky white sneakers and the Black crossbody bag for an easy casual-glam contrast.
+
+Outfit 2: Elevated Tailoring
+Wear the Emerald Green Velvet Blazer with the Wide-leg khaki trousers and the White ribbed tank top tucked in. Add the Brown leather belt at the waist and complete the outfit with the Black combat boots to anchor the tailored pieces.
+
+  Fit card: There is nothing quite like a rich emerald moment for throwing over a simple white tank and baggy jeans. This Velvet Blazer — Emerald Green brings the ultimatecasual-glam contrast with its padded shoulders and fitted cut. Grab it on Depop for $52.00 before someone else snags this vintage staple.
+
+2 model calls this session, 1438 prompt + 176 output tokens
 ```
 
 **Empty search**
 
 ```
+python app.py ask 'purple jeans under $15' --trace          
+[1] parse_query
+      in:  purple jeans under $15
+      out: {'description': 'purple jeans', 'size': None, 'max_price': 15.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'purple jeans', 'size': None, 'max_price': 15.0}
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      out: No listings matched. Try changing the item description, size, or maximum price.
+      →    search returned []: stopping before suggest_outfit
 
+  No listings matched. Try changing the item description, size, or maximum price.
+
+0 model calls this session
 ```
 
 **On the MCP move:** <!-- what changed in your code, and whether anything
@@ -348,20 +390,20 @@ full. -->
 
      SUBMISSION CHECKLIST — unit 3
 
-       [ ] criteria.md has five numbered criteria, each with a target
-       [ ] Each criterion has a reason underneath it
-       [ ] All five unit 3 sections above have real content
-       [ ] Tool Inventory: all three tools, inputs WITH TYPES, a specific
+       [X] criteria.md has five numbered criteria, each with a target
+       [X] Each criterion has a reason underneath it
+       [X] All five unit 3 sections above have real content
+       [X] Tool Inventory: all three tools, inputs WITH TYPES, a specific
            return value, and the empty case
-       [ ] Planning Loop names the branch rule and agent.py::run_agent
-       [ ] Sample Run: one full query plus the three per-tool tests, as text
-       [ ] At least four new commits
-       [ ] Repository URL submitted — WRITE IT DOWN, you submit the same one
+       [X] Planning Loop names the branch rule and agent.py::run_agent
+       [X] Sample Run: one full query plus the three per-tool tests, as text
+       [X] At least four new commits
+       [X] Repository URL submitted — WRITE IT DOWN, you submit the same one
            next unit
 
      SUBMISSION CHECKLIST — unit 4
 
-       [ ] mcp_server.py exists with one tool registered
+       [X] mcp_server.py exists with one tool registered
            (or a written record of exactly where the rewire broke)
        [ ] Run Log — Before, five criteria, five tries each
        [ ] Real output pasted underneath, naming file and function
