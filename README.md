@@ -645,10 +645,10 @@ targets in the after-run.
        [X] A diagnosis for every miss, naming a place AND a mechanism
        [X] Loop Trace, with the MCP call visible in it
        [X] All three failure modes triggered and handled
-       [ ] One improvement, with Run Log — After in the same format
-       [ ] What's Still Broken
+       [X] One improvement, with Run Log — After in the same format
+       [X] What's Still Broken
        [X] At least four new commits
-       [XS] The SAME repository URL as last unit
+       [X] The SAME repository URL as last unit
 
      Do not delete and recreate this repository. Your commit history is what
      shows your criteria existed before your results did.
