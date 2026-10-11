@@ -487,15 +487,15 @@ Trace:
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Matching query completes all three tools | 4 of 5 | MET (5/5) | All five matching-query tries completed without stopping early and returned a fit card. |
+| 2 | Impossible query stops before the second tool | 5 of 5 | MET (5/5) | All five returned an actionable message, had zero search results, and traced the stop before `suggest_outfit`. |
+| 3 | Selected item reaches outfit tool | 5 of 5 | MET (5/5) | In all five traces, the selected listing at `select_item` matches the listing shown as `suggest_outfit` input. The run log does not separately spy-assert full dictionary equality. |
+| 4 | Fit card mentions listing price and category | 4 of 5 | MISSED (2/5) | All five cards mention `$52`; only tries 4 and 5 mention the listing category, `outerwear`. |
+| 5 | Search respects maximum price | 5 of 5 | MET (5/5) | The selected listing cost `$28`, below the `$30` maximum in all five tries. |
 
 **Diagnoses**
 
-
+Criterion 4 missed because `tools.py::create_fit_card` asks the model to mention the item's title, price, and platform, but does not explicitly require its `category`. The model included the category `outerwear` in only two of five captions, even though the listing data was available. The failure is in the fit-card prompt, not the search or the planning-loop branch.
 
 ---
 
