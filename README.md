@@ -226,15 +226,241 @@ Remove-Item Env:AI201_CACHE
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. matching query completes | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. selected item reaches outfit tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card includes listing details | 4 of 5 | FAIL | FAIL | FAIL | PASS | PASS | MISSED (2/5) |
+| 5. search respects maximum price | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
+```
+Criteria 1:
+
+**Source:** Try 2 from `results/run_2026-10-11_1744_before.md`, recorded by
+`run_eval.py::run_once` from `agent.py::run_agent`. The tools in this run were
+`mcp_server.py::search_listings` (which delegates to
+`tools.py::search_listings`), `tools.py::suggest_outfit`, and
+`tools.py::create_fit_card`.
+
+**Try 2**
+
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+- search_results: 10
+
+Outfit suggestion:
+
+```
+Outfit 1: Y2K Streetwear
+Pair the Y2K Baby Tee — Butterfly Print with the Baggy straight-leg jeans, dark wash, Vintage black denim jacket, Chunky white sneakers, and Black crossbody bag. This balances the fitted, cropped tee with relaxed denim for an effortless throwback look.
+
+Outfit 2: Casual Contrast
+Pair the Y2K Baby Tee — Butterfly Print with the Wide-leg khaki trousers, Black cropped zip hoodie (worn open or carried), Chunky white sneakers, and Brown leather belt. The structured trousers tone down the playful graphic for an easy, everyday outfit.
+```
+
+Fit card:
+
+```
+Channel your inner early 2000s energy by styling this Y2K Baby Tee — Butterfly Print with baggy denim and chunky sneakers for an effortless throwback look. The pink and purple graphic print hits all the right nostalgic notes for your casual wardrobe rotation. Grab it now for $18.00 exclusively on depop.
+```
+
+Trace:
+
+```
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Outfit 1: Y2K Streetwear Pair the Y2K Baby Tee — Butterfly Print with the Baggy straight-leg jeans, dark wash,…
+[5] create_fit_card
+      in:  dict with keys: outfit, new_item
+      out: Channel your inner early 2000s energy by styling this Y2K Baby Tee — Butterfly Print with baggy denim and chun…
+```
+
+Criteria 2:
+
+**Source:** Try 2 from `results/run_2026-10-11_1744_before.md`, recorded by
+`run_eval.py::run_once` from `agent.py::run_agent`; the search result came from
+`mcp_server.py::search_listings`, which delegates to
+`tools.py::search_listings`. The early-stop message and `fit_card: None` are
+from the session returned by `agent.py::run_agent`.
+
+**Try 2**
+
+- stopped early: yes — No listings matched. Try changing the item description, size, or maximum price.
+- selected_item: (none)
+- search_results: 0
+
+Trace:
+
+```
+[1] parse_query
+      in:  designer ballgown size XXS under $5
+      out: {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      out: No listings matched. Try changing the item description, size, or maximum price.
+      →    search returned []: stopping before suggest_outfit
+```
+
+Criteria 3:
+
+**Source:** Try 2 from `results/run_2026-10-11_1744_before.md`, recorded by
+`run_eval.py::run_once` from `agent.py::run_agent`. Its trace shows the same
+selected listing title at `select_item` and as the input to
+`tools.py::suggest_outfit`. The run log records the trace, but does not perform
+a separate spy-based equality assertion.
+
+**Try 2**
+
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+- search_results: 8
+
+Outfit suggestion:
+
+```
+Outfit 1: Y2K Streetwear
+Pair the Y2K Baby Tee — Butterfly Print with the baggy straight-leg jeans, dark wash, layered underneath the vintage black denim jacket. Complete the look with chunky white sneakers and the black crossbody bag.
+
+Outfit 2: Casual Contrast
+Wear the Y2K Baby Tee — Butterfly Print tucked into the wide-leg khaki trousers, accented with the brown leather belt. Finish with the black combat boots for an easy, balanced everyday outfit.
+```
+
+Fit card:
+
+```
+Channel pure early 2000s energy by styling this fitted white, pink, and purple graphic top with baggy straight-leg jeans and a dark wash denim jacket. Grab the Y2K Baby Tee — Butterfly Print for $18.00 over on depop before it's gone.
+```
+
+Trace:
+
+```
+[1] parse_query
+      in:  vintage graphic tee under $30, size M
+      out: {'description': 'vintage graphic tee', 'size': 'M', 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'size': 'M', 'max_price': 30.0}
+      out: 8 items: Y2K Baby Tee — Butterfly Print, Mesh Long-Sleeve Top — Black, 90s Silk Slip Dress — Floral, Midi Length … +5 more
+      →    8 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Outfit 1: Y2K Streetwear Pair the Y2K Baby Tee — Butterfly Print with the baggy straight-leg jeans, dark wash,…
+[5] create_fit_card
+      in:  dict with keys: outfit, new_item
+      out: Channel pure early 2000s energy by styling this fitted white, pink, and purple graphic top with baggy straight…
+```
+
+Criteria 4:
+
+**Source:** Try 2 from `results/run_2026-10-11_1744_before.md`, recorded by
+`run_eval.py::run_once` from `agent.py::run_agent`; the caption was returned by
+`tools.py::create_fit_card` for the selected listing from
+`mcp_server.py::search_listings` / `tools.py::search_listings`.
+
+**Try 2**
+
+- stopped early: no
+- selected_item: Velvet Blazer — Emerald Green ($52.0, depop)
+- search_results: 2
+
+Outfit suggestion:
+
+```
+Outfit 1: High-Low Casual
+Layer the Emerald Green Velvet Blazer over the White ribbed tank top and pair with the Baggy straight-leg jeans, dark wash. Cinch the waist with the Brown leather belt, add the Black crossbody bag, and finish with the Chunky white sneakers to dress down the statement blazer for daytime.
+
+Outfit 2: Elevated Earth Tones
+Wear the Emerald Green Velvet Blazer with the White ribbed tank top tucked into the Wide-leg khaki trousers. Accessorize with the Brown leather belt and the Black crossbody bag, and complete the look with the Black combat boots for a polished, tailored outfit.
+```
+
+Fit card:
+
+```
+Throwing this stunning Emerald Green Velvet Blazer over a basic tee and baggy denim is my favorite way to dress down a major vintage moment. The padded shoulders and fitted emerald cut give it such an incredible glam shape for just $52. Find it live on my Depop before someone else snags it!
+```
+
+Trace:
+
+```
+[1] parse_query
+      in:  emerald velvet blazer under $55
+      out: {'description': 'emerald velvet blazer', 'size': None, 'max_price': 55.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'emerald velvet blazer', 'size': None, 'max_price': 55.0}
+      out: 2 items: Velvet Blazer — Emerald Green, Vintage Linen Blazer — Cream
+      →    2 match(es)
+[3] select_item
+      out: Velvet Blazer — Emerald Green ($52.0, depop)
+[4] suggest_outfit
+      in:  Velvet Blazer — Emerald Green ($52.0, depop)
+      out: Outfit 1: High-Low Casual Layer the Emerald Green Velvet Blazer over the White ribbed tank top and pair with t…
+[5] create_fit_card
+      in:  dict with keys: outfit, new_item
+      out: Throwing this stunning Emerald Green Velvet Blazer over a basic tee and baggy denim is my favorite way to dres…
+```
+
+Criteria 5:
+
+**Source:** Try 2 from `results/run_2026-10-11_1744_before.md`, recorded by
+`run_eval.py::run_once` from `agent.py::run_agent`; the selected result came
+from `mcp_server.py::search_listings`, which delegates to
+`tools.py::search_listings`.
+
+**Try 2**
+
+- stopped early: no
+- selected_item: Silk Button-Down — Sage Green ($28.0, depop)
+- search_results: 4
+
+Outfit suggestion:
+
+```
+Outfit 1: Earth Tone Minimalist
+Wear the Silk Button-Down — Sage Green fully buttoned tucked into the Wide-leg khaki trousers, cinched with the Brown leather belt. Finish with the Chunky white sneakers.
+
+Outfit 2: Casual Layering
+Wear the White ribbed tank top as a base with the Silk Button-Down — Sage Green worn open as a layer over top. Pair with the Baggy straight-leg jeans, dark wash, finished with the Chunky white sneakers and the Black crossbody bag.
+```
+
+Fit card:
+
+```
+This flowy sage green top is the ultimate minimalist piece for effortless earth-tone styling, whether you wear it fully buttoned or open as a light layer. Grab this Silk Button-Down — Sage Green for $28.00 over on depop before it's gone!
+```
+
+Trace:
+
+```
+[1] parse_query
+      in:  silk button-down under $30
+      out: {'description': 'silk button-down', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'silk button-down', 'size': None, 'max_price': 30.0}
+      out: 4 items: Silk Button-Down — Sage Green, 90s Silk Slip Dress — Floral, Midi Length, Leather Belt — Brown, Braided … +1 more
+      →    4 match(es)
+[3] select_item
+      out: Silk Button-Down — Sage Green ($28.0, depop)
+[4] suggest_outfit
+      in:  Silk Button-Down — Sage Green ($28.0, depop)
+      out: Outfit 1: Earth Tone Minimalist Wear the Silk Button-Down — Sage Green fully buttoned tucked into the Wide-leg…
+[5] create_fit_card
+      in:  dict with keys: outfit, new_item
+      out: This flowy sage green top is the ultimate minimalist piece for effortless earth-tone styling, whether you wear…
 ```
 
 ```
@@ -344,7 +570,13 @@ behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
 full. -->
 
-
+I registered `search_listings` in `mcp_server.py` and changed `agent.py::run_agent`
+to call it through `mcp_client.call_tool` instead of calling the function
+directly. The MCP call returned the same list of listing dictionaries, so the
+happy path still selected the Velvet Blazer and continued through outfit and
+fit-card creation. The empty-search trace also returned `[]` and stopped before
+the model-backed tools. The search transport changed, but the downstream
+behavior did not.
 
 ---
 

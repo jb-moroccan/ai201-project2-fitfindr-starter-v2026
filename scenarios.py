@@ -35,7 +35,7 @@ SCENARIOS = [
         "wardrobe": "empty",
         "criterion": None,
     },
-    # TODO: add what your criteria 3, 4 and 5 need.
+    # The remaining guidance applies when adding scenarios for your criteria.
     #
     # Set "criterion" to the number in criteria.md that the scenario tests.
     # "criterion": None means a diagnostic run — useful to have, but it isn't
@@ -47,6 +47,27 @@ SCENARIOS = [
     # For a fit-card criterion, you probably want the SAME query listed more
     # than once, or several different items, depending on what your criterion
     # actually says.
+    {
+        # A matching query for the session-to-tool state handoff. Criterion 3.
+        "name": "selected item reaches outfit tool",
+        "query": "vintage graphic tee under $30, size M",
+        "wardrobe": "example",
+        "criterion": 3,
+    },
+    {
+        # Check price and category in the generated fit card. Criterion 4.
+        "name": "fit card includes listing details",
+        "query": "emerald velvet blazer under $55",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # Check the selected listing respects the parsed price ceiling. Criterion 5.
+        "name": "search respects maximum price",
+        "query": "silk button-down under $30",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
 ]
 
 WARDROBES = ("example", "empty")

@@ -190,10 +190,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     )
     trace_step(
         "suggest_outfit",
-        inputs={
-            "new_item": session["selected_item"],
-            "wardrobe": session["wardrobe"],
-        },
+        inputs=session["selected_item"],
         returned=session["outfit_suggestion"],
     )
     outfit_suggestion = session["outfit_suggestion"]
