@@ -240,8 +240,9 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     prompt = (
         "Write a 2-to-4 sentence social-media caption for this thrifted find. "
         "Make it sound natural and specific about the outfit's vibe, not like "
-        "a product listing. Mention the item's title, price, and platform once "
-        "each, and do not invent details.\n\n"
+        "a product listing. Mention the item's title, price, category, and "
+        "platform once each. Use the supplied category value as written, and "
+        "do not invent details.\n\n"
         f"Item details:\n{json.dumps(item_details, indent=2)}\n\n"
         f"Outfit suggestion:\n{outfit.strip()}"
     )

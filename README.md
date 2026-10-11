@@ -587,26 +587,27 @@ behavior did not.
 
      `python run_eval.py --label after` -->
 
-**What I changed:**
+**What I changed:** I updated the prompt in `tools.py::create_fit_card` to explicitly require the listing's category value, such as `outerwear`, once in the caption.
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** Criterion 4 missed because only 2 of 5 fit cards mentioned the selected listing's category. The prompt previously required the title, price, and platform but did not require the category.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
-
-**Did it help, and how do I know:**
+| 1. matching query completes | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. selected item reaches outfit tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card includes listing details | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. search respects maximum price | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
 
-
+**Did it help, and how do I know:** Yes. Criterion 4 improved from 2 of 5
+before the prompt change to 5 of 5 after it. All five after-run captions for
+the blazer explicitly included its `outerwear` category, and the other four
+criteria also met their targets in all five after-run tries.
 
 ---
 
@@ -616,7 +617,8 @@ behavior did not.
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
 
-
+No acceptance criteria remain missed after the improvement: all five met their
+targets in the after-run.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
@@ -637,16 +639,16 @@ behavior did not.
 
        [X] mcp_server.py exists with one tool registered
            (or a written record of exactly where the rewire broke)
-       [ ] Run Log — Before, five criteria, five tries each
-       [ ] Real output pasted underneath, naming file and function
-       [ ] A verdict on every criterion
-       [ ] A diagnosis for every miss, naming a place AND a mechanism
-       [ ] Loop Trace, with the MCP call visible in it
-       [ ] All three failure modes triggered and handled
+       [X] Run Log — Before, five criteria, five tries each
+       [X] Real output pasted underneath, naming file and function
+       [X} A verdict on every criterion
+       [X] A diagnosis for every miss, naming a place AND a mechanism
+       [X] Loop Trace, with the MCP call visible in it
+       [X] All three failure modes triggered and handled
        [ ] One improvement, with Run Log — After in the same format
        [ ] What's Still Broken
-       [ ] At least four new commits
-       [ ] The SAME repository URL as last unit
+       [X] At least four new commits
+       [XS] The SAME repository URL as last unit
 
      Do not delete and recreate this repository. Your commit history is what
      shows your criteria existed before your results did.
